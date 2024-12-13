@@ -32,10 +32,12 @@ The following table explains the three different categories of input features th
 
 | Feature Type              | Description                                                                 |
 | ------------------------- | --------------------------------------------------------------------------- |
-| Static Categoricals       | Categorical features that are constant for all time steps. |
+| Static Categoricals       | Categorical features that are constant for all time steps (note that this is only relevant if the dataset contains multiple groups; see `group_id`). |
 | Time-Varying Known Reals  | Continuous features that vary over time but are known in advance for all time steps (e.g., weather forecasts, holiday indicators). |
 | Time-Varying Unknown Reals| Continuous features that vary over time and are unknown for future time steps (e.g., sales, stock prices). |
 
+### Denoting the Group ID
+The `group_id` argument is used to denote the group that the data belongs to. If the dataset contains multiple groups, then this argument must be provided. If the dataset contains a single group, then this argument will be set to `default_group`. The provided examples only use a single group, so this argument is not used.
 
 ## How to Launch Tensorboard for Visualizing Training/Validation Losses
 Run the following command to start the tensorboard server:
@@ -44,8 +46,8 @@ tensorboard --logdir lightning_logs
 ```
 
 ## Background Information
-The TFT model combines elements of transformers, LSTMs, GRUs, and Resnets to create a model that is highly effective at forecasting tasks. A key differentiator of the TFT as compared to the LSTM is the multi-attention head mechanism,
-which allows the model to capture long range dependencies in the data. While LSTM processes the input sequence purely sequentially, the TFT's attention head processes the entire input sequence at once in parallel. This allows the TFT
+The TFT model combines elements of transformers, LSTMs, GRUs, and Resnets to create a model that is highly effective at forecasting tasks. A key differentiator of the TFT as compared to the LSTM is the multi-head attention mechanism,
+which allows the model to capture long range dependencies in the data. While LSTM processes the input sequence purely sequentially, the TFT's attention mechanism processes the entire input sequence at once in parallel. This allows the TFT
 to recognize relationships between elements of the input sequence that are temporally distant from each other.  
   
 This project provides a working pipeline of the TFT model provided by the PyTorch Forecasting library. The pipeline is a good starting point, but it can (and probably should) be adapted using other modules from this library to make it more specialized to the desired forecasting task.  
