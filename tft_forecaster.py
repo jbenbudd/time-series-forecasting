@@ -21,11 +21,11 @@ class TFTForecaster:
         self.model = None
         self.trainer = None
 
-    def prep_data(self, data, test_size=0.2, val_size=0.1):
+    def prep_data(self, data, test_size=0.2, val_size=0.1, static_categoricals=None, time_varying_known_reals=None, time_varying_unknown_reals=None, group_id="default_group"):
         # Add required columns
         data = data.copy()
         data["time_idx"] = range(len(data))  # Add a time index column
-        data["group_id"] = "default_group"  # Add a constant group ID for a single series
+        data["group_id"] = group_id if group_id == "default_group" else data[group_id]
 
         # Determine lengths of validation and test sets
         test_length = int(len(data) * test_size)
@@ -43,9 +43,10 @@ class TFTForecaster:
          # Save test dates for plotting
         self.test_dates = test_data["date"].values
 
-        # Define known and unknown time-varying reals
-        self.time_varying_known_reals = [f for f in self.features if f != self.target]
-        self.time_varying_unknown_reals = [self.target]
+        # Define inputs
+        self.static_categoricals = static_categoricals
+        self.time_varying_known_reals = time_varying_known_reals
+        self.time_varying_unknown_reals = time_varying_unknown_reals
 
         # Create TimeSeriesDataSet objects
         self.training_dataset = TimeSeriesDataSet(
@@ -55,6 +56,7 @@ class TFTForecaster:
             group_ids=["group_id"],
             max_encoder_length=self.max_encoder_length,
             max_prediction_length=self.max_prediction_length,
+            static_categoricals=self.static_categoricals,
             time_varying_known_reals=self.time_varying_known_reals,
             time_varying_unknown_reals=self.time_varying_unknown_reals,
             target_normalizer=GroupNormalizer(groups=["group_id"]),
@@ -82,7 +84,7 @@ class TFTForecaster:
             attention_head_size=attention_head_size,
             dropout=dropout,
             hidden_continuous_size=hidden_continuous_size,
-            loss=QuantileLoss(),  # Loss function for training
+            loss=QuantileLoss(), 
         )
 
         # Determine the accelerator type (TPU, GPU, or CPU)
@@ -130,7 +132,7 @@ class TFTForecaster:
         print(f"Mean Squared Error (MSE) on the test set: {mse}")
         return mse
 
-    def plot_predictions(self):
+    def plot_predictions(self, y_axis_label, plot_title):
         if self.model is None:
             raise ValueError("Model not trained yet. Please call train_model first.")
 
@@ -149,9 +151,9 @@ class TFTForecaster:
         plt.figure(figsize=(12, 6))
         plt.plot(test_dates, actuals, label="Actuals", color="blue")
         plt.plot(test_dates, predictions, label="Predictions", color="orange", linewidth=1)
-        plt.title("Predicted vs Actual Temperature")
+        plt.title(f"Predicted vs Actual {plot_title}")
         plt.xlabel("Date")
-        plt.ylabel("Temperature (C)")
+        plt.ylabel(y_axis_label)
         plt.xticks(test_dates[::50], rotation=45)  # Show every 50th date for readability
         plt.gcf().autofmt_xdate()                 # Automatically format x-axis dates
         plt.legend()
