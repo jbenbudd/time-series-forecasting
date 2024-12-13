@@ -2,7 +2,7 @@
 Make accurate forecasts using Temporal Fusion Transformers with PyTorch.
 
 ## Overview
-This repository implements the PyTorch Forecasting Temporal Fusion Transformer (TFT) for predicting time series data. This pipeline can be used to train models for explainable multi-horizon forecasting, and can be easily adapted to various time series datasets and forecasting tasks.
+This repository implements the PyTorch Forecasting Temporal Fusion Transformer (TFT) for interpretable multi-horizon time series forecasting. The provided pipeline automatically prepares the dataloaders, trains the model, and plots the performance of the model on the test set.
 
 ## Example Forecasts
 Below are examples of the model's forecasting performance on various datasets:
@@ -12,7 +12,7 @@ Below are examples of the model's forecasting performance on various datasets:
 ![Forecast Example 3](/plots/weather_prediction.png)
 
 ## Prerequisites
-It is recommended to make the data stationary before training the model. 
+It is recommended to make the data stationary before training the model. A conda environment is provided in the `environments` directory to make it easier to run the code.
 
 ## How to Use the Provided Conda Environment
 This repository provides the conda environment which was used throughout the development of this project. It is known to be compatible with Nvidia CUDA version 12.4 and with TPUs available on Google Cloud.
@@ -27,6 +27,16 @@ To activate the conda environment, run the following command:
 conda activate tft
 ```
 
+## Inputs
+The following table explains the three different categories of input features that are used by the TFT model to ensure proper configuration:
+
+| Feature Type              | Description                                                                 |
+| ------------------------- | --------------------------------------------------------------------------- |
+| Static Categoricals       | Categorical features that are constant for all time steps. |
+| Time-Varying Known Reals  | Continuous features that vary over time but are known in advance for all time steps (e.g., weather forecasts, holiday indicators). |
+| Time-Varying Unknown Reals| Continuous features that vary over time and are unknown for future time steps (e.g., sales, stock prices). |
+
+
 ## How to Launch Tensorboard for Visualizing Training/Validation Losses
 Run the following command to start the tensorboard server:
 ```
@@ -40,7 +50,7 @@ to recognize relationships between elements of the input sequence that are tempo
   
 This project provides a working pipeline of the TFT model provided by the PyTorch Forecasting library. The pipeline is a good starting point, but it can (and probably should) be adapted using other modules from this library to make it more specialized to the desired forecasting task.  
 
-## Model Architecture
+### Model Architecture
 The below table describes the various modules of the TFT and their purpose:
 
 | Name                             | Type                                | Description                                                                                     |
